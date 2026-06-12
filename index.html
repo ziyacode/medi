@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#030609">
+  <meta name="description" content="Ziya və Mədinə üçün adı olmayan, amma çox dərin bir bağın sirli rəqəmsal xatirəsi.">
+  <title>ZM | Bizim dünya</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="locked">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <section class="lock-screen" id="lockScreen" aria-labelledby="lockTitle">
+    <div class="lock-ambient" aria-hidden="true">
+      <span class="blur-orb orb-one"></span>
+      <span class="blur-orb orb-two"></span>
+      <span class="blur-orb orb-three"></span>
+    </div>
+
+    <div class="lock-card">
+      <div class="lock-emblem" aria-hidden="true">
+        <span>Z</span>
+        <svg viewBox="0 0 64 58" role="img">
+          <path d="M32 54S4 37 4 17C4 8 10 3 18 3c6 0 11 4 14 9 3-5 8-9 14-9 8 0 14 5 14 14 0 20-28 37-28 37Z"/>
+        </svg>
+        <span>M</span>
+      </div>
+      <p class="eyebrow">Yalnız ikimizə aid</p>
+      <h1 id="lockTitle">Balaca dünyamıza giriş</h1>
+      <p class="lock-copy">Bəzi bağların adı olmur. Sadəcə kodu olur.</p>
+
+      <form class="pin-form" id="pinForm" autocomplete="off">
+        <label class="sr-only" for="pinInput">Dörd rəqəmli giriş kodu</label>
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" aria-describedby="pinHint" autofocus>
+        <div class="pin-dots" id="pinDots" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <p class="pin-hint" id="pinHint">4 rəqəmli sirrimizi yaz</p>
+
+        <div class="keypad" aria-label="Rəqəm klaviaturası">
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" class="key-ghost" data-clear aria-label="Kodu sil">C</button>
+          <button type="button" data-key="0">0</button>
+          <button type="submit" class="key-enter" aria-label="Daxil ol">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6M15 12H3M21 4v16"/></svg>
+          </button>
+        </div>
+      </form>
+      <p class="lock-error" id="lockError" role="alert"></p>
+    </div>
+
+    <p class="lock-footer">Ziya <span>♡</span> Mədinə</p>
+  </section>
+
+  <main class="site" id="site" aria-hidden="true">
+    <div class="floating-hearts" id="floatingHearts" aria-hidden="true"></div>
+    <div class="particle-field" id="particleField" aria-hidden="true"></div>
+
+    <header class="topbar" id="topbar">
+      <a href="#home" class="brand" aria-label="Ana səhifə">
+        <span>Z</span><i>♡</i><span>M</span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Əsas naviqasiya">
+        <a href="#biz">Biz</a>
+        <a href="#xatireler">Tarixlər</a>
+        <a href="#sirler">Gizli qapılar</a>
+        <a href="gallery.html">Qalereya</a>
+        <a href="music.html">Mahnılar</a>
+      </nav>
+      <div class="top-actions">
+        <button class="tiny-button" id="heartMode" type="button" aria-pressed="false">
+          <span class="tiny-icon">♡</span><span>Ürək yağışı</span>
+        </button>
+        <button class="menu-button" id="menuButton" type="button" aria-label="Menyunu aç" aria-expanded="false">
+          <span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero" id="home">
+      <div class="hero-aurora" aria-hidden="true"></div>
+      <div class="hero-stars" aria-hidden="true"></div>
+
+      <div class="hero-copy">
+        <p class="eyebrow reveal">13 • 04 • 2024 <span></span> Hər şeyin başladığı gün</p>
+        <h1 class="reveal">
+          <span class="soft-line">Bir dostluqdan</span>
+          <span class="display-line">daha artığı.</span>
+        </h1>
+        <p class="hero-lead reveal">Sevgili deyilik. Amma bəzən bir insan həyatında bütün adlardan daha böyük yer tutur. Sən mənim ən doğma təsadüfümsən, Mədinə.</p>
+        <div class="hero-actions reveal">
+          <a class="primary-button" href="#biz">Bizim dünyaya bax <span>↓</span></a>
+          <button class="text-button" id="openFirstNote" type="button">İlk gizli sözü aç <span>♡</span></button>
+        </div>
+      </div>
+
+      <div class="hero-art reveal" aria-label="Ziya və Mədinəni təmsil edən ürək illüstrasiyası">
+        <div class="orbit orbit-one"><span></span></div>
+        <div class="orbit orbit-two"><span></span></div>
+        <button class="main-heart" id="mainHeart" type="button" aria-label="Ürəyə toxun">
+          <svg viewBox="0 0 300 280" aria-hidden="true">
+            <defs>
+              <linearGradient id="heartGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e11d36"/>
+                <stop offset=".48" stop-color="#08141a"/>
+                <stop offset="1" stop-color="#168b99"/>
+              </linearGradient>
+              <filter id="heartShadow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <path filter="url(#heartShadow)" fill="url(#heartGradient)" d="M150 264S24 188 24 91C24 47 52 20 91 20c29 0 49 17 59 39 10-22 30-39 59-39 39 0 67 27 67 71 0 97-126 173-126 173Z"/>
+          </svg>
+          <span class="heart-initial initial-m">Z</span>
+          <span class="heart-line"></span>
+          <span class="heart-initial initial-z">M</span>
+          <small>toxun</small>
+        </button>
+        <p class="orbit-note note-one">ən yaxın</p>
+        <p class="orbit-note note-two">ən doğma</p>
+        <p class="orbit-note note-three">həmişə biz</p>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true"><span></span><small>aşağı sürüşdür</small></div>
+    </section>
+
+    <section class="intro section" id="biz">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Biz nəyiq?</p>
+        <h2>Adı olmayan ən gözəl bağ.</h2>
+        <p>Bəzən “ən yaxın dost” demək az qalır, “sevgi” demək isə hər şeyi tam anlatmır. Biz ikisinin arasında yox, ikisindən də özəl bir yerdəyik.</p>
+      </div>
+
+      <div class="bond-grid">
+        <article class="bond-card reveal">
+          <span class="card-number">01</span>
+          <div class="line-icon"><span></span><span></span></div>
+          <h3>Sözsüz anlayış</h3>
+          <p>Bəzən bir “necəsən?” sualının arxasında gizlənən hər şeyi bilmək.</p>
+        </article>
+        <article class="bond-card featured reveal">
+          <span class="card-number">02</span>
+          <div class="line-icon heart-icon">♡</div>
+          <h3>Şərtsiz doğmalıq</h3>
+          <p>Ən qarışıq halımızla belə bir-birimizin yanında özümüz ola bilmək.</p>
+        </article>
+        <article class="bond-card reveal">
+          <span class="card-number">03</span>
+          <div class="line-icon infinity-icon">∞</div>
+          <h3>Bitməyən tərəf</h3>
+          <p>Həyat dəyişsə də “mən buradayam” cümləsinin yerində qalması.</p>
+        </article>
+      </div>
+
+      <div class="statement reveal">
+        <span class="quote-mark">“</span>
+        <blockquote>Mədinə, sən mənim həyatımda təsadüf kimi başlayıb, vazkeçilməzə çevrilən insansan.</blockquote>
+        <p>— Ziyadan, adı yalnız sizə məlum olan hissə</p>
+      </div>
+    </section>
+
+    <section class="timeline-section section" id="xatireler">
+      <div class="section-heading left reveal">
+        <p class="eyebrow">Bizim izlərimiz</p>
+        <h2>Kiçik anlar.<br>Böyük mənalar.</h2>
+        <p>İki tarix var: biri tanışlığın qapısını açdı, digəri isə bu bağın adlardan böyük olduğunu göstərdi.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-line" aria-hidden="true"><span></span></div>
+        <article class="memory reveal">
+          <div class="memory-date"><span>13.04</span><small>2024</small></div>
+          <div class="memory-card">
+            <span class="memory-tag">Başlanğıc · 13 aprel 2024</span>
+            <h3>Tanış olduğumuz gün</h3>
+            <p>Həmin gün sadəcə iki insan tanış olmadı. Sonradan bir-birinin ən doğma yerinə çevriləcək iki ayrı dünya ilk dəfə eyni cümlədə görüşdü.</p>
+            <div class="edit-hint">Bu gündən bəri <strong id="knownDays">...</strong> gün <span>↗</span></div>
+          </div>
+        </article>
+        <article class="memory reverse reveal">
+          <div class="memory-date"><span>28.05</span><small>2026</small></div>
+          <div class="memory-card">
+            <span class="memory-tag">Dönüş nöqtəsi · 28 may 2026</span>
+            <h3>“Ən yaxın” olduğumuz an</h3>
+            <p>O gündən sonra “dost” sözü doğru olsa da, kifayət etmədi. Çünki bəzi insanlar həyatında yer tutmur, birbaşa həyatının bir hissəsinə çevrilir.</p>
+            <div class="edit-hint">Ən yaxın olduğumuz gündən <strong id="closeDays">...</strong> gün <span>↗</span></div>
+          </div>
+        </article>
+        <article class="memory reveal">
+          <div class="memory-date"><span>∞</span><small>davam edir</small></div>
+          <div class="memory-card future-card">
+            <span class="memory-tag">Hələ yazılır</span>
+            <h3>28 maydan bu günə, bu gündən sonsuzluğa</h3>
+            <p>Vaxt bir bağı yaratmır, sadəcə onun həqiqi olub-olmadığını göstərir. Bizim hekayə isə hər yeni gündə öz cavabını verir.</p>
+            <div class="mini-hearts" aria-hidden="true"><i>♡</i><i>♡</i><i>♡</i></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="gallery-portal section" id="sekiller">
+      <div class="portal-static" aria-hidden="true"></div>
+      <div class="portal-lock reveal">
+        <span class="portal-code">// ayrıca qorunan sahə</span>
+        <div class="portal-icon" aria-hidden="true"><i></i><b>2006</b></div>
+        <p class="eyebrow">Xatirə arxivi</p>
+        <h2>Şəkillərin öz otağı var.</h2>
+        <p>Bəzi kadrlar hamıya göstərilməz. Qalereya əsas saytdan ayrıdır və yalnız ikinci kodu bilənlər üçün açılır.</p>
+        <a class="primary-button" href="gallery.html">Qorunan qalereyaya keç <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="music-portal section" id="mahnilar">
+      <div class="music-wave-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="music-disc reveal" aria-hidden="true"><span>Z♡M</span><i></i></div>
+      <div class="music-portal-copy reveal">
+        <p class="eyebrow">Səs yaddaşı</p>
+        <h2>Bizim mahnılarımızın<br><em>ayrıca otağı var.</em></h2>
+        <p>Hər mahnı üçün ifaçı, hekayəsi, bizə xatırlatdığı an, seçilən misra, əhval və ayrıca söz paneli hazırlanıb. İndi yalnız mahnıları gözləyir.</p>
+        <a class="primary-button" href="music.html">Musiqi otağını aç <span>♫</span></a>
+      </div>
+    </section>
+
+    <section class="universe-section section" aria-labelledby="universeTitle">
+      <div class="universe-card reveal">
+        <div class="constellation" aria-hidden="true">
+          <svg viewBox="0 0 900 500" preserveAspectRatio="none">
+            <path d="M90 330 230 165 388 260 520 110 660 230 806 130"/>
+            <path class="soft-path" d="M230 165 300 75M388 260 455 410M660 230 735 385"/>
+          </svg>
+          <i style="--x:10%;--y:66%;--d:0s"></i>
+          <i style="--x:25.5%;--y:33%;--d:.5s"></i>
+          <i style="--x:33.3%;--y:15%;--d:1s"></i>
+          <i style="--x:43%;--y:52%;--d:1.5s"></i>
+          <i style="--x:50.5%;--y:82%;--d:.2s"></i>
+          <i style="--x:57.7%;--y:22%;--d:1.8s"></i>
+          <i style="--x:73.3%;--y:46%;--d:.7s"></i>
+          <i style="--x:81.6%;--y:77%;--d:1.1s"></i>
+          <i style="--x:89.5%;--y:26%;--d:.4s"></i>
+        </div>
+        <div class="universe-copy">
+          <p class="eyebrow">Eyni səmanın altında</p>
+          <h2 id="universeTitle">İki ayrı insan.<br>Bir ortaq kainat.</h2>
+          <p>Aramızdakı məsafə nə olursa olsun, eyni mahnıda, eyni xatirədə və bir “mən buradayam” cümləsində yenə görüşürük.</p>
+          <div class="universe-names"><span>Ziya</span><i>✦</i><span>Mədinə</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mystery-section section" id="sirler">
+      <div class="mystery-grid-bg" aria-hidden="true"></div>
+      <div class="section-heading reveal">
+        <p class="eyebrow">Görünməyən tərəf</p>
+        <h2>Hər qapı bir fikir gizlədir.</h2>
+        <p>Burada cavablar yoxdur. Sadəcə səni bir az daha uzun düşündürən cümlələr var. Qapılara toxun.</p>
+      </div>
+      <div class="secret-doors">
+        <button class="secret-door reveal" type="button" data-secret="Bir insanı yaxın edən hər gün danışmaq deyil. Susduğun vaxt da onun yanında özünü izah etməyə ehtiyac duymamağındır.">
+          <span class="door-index">QAPI 13</span><i>⌁</i><b>Səssizlik</b><small>Açmaq üçün toxun</small>
+        </button>
+        <button class="secret-door reveal" type="button" data-secret="Bəzən həyat iki insanı eyni yerə gətirmir. Onları eyni düşüncənin içinə gətirir və çıxış qapısını unutdurur.">
+          <span class="door-index">QAPI 28</span><i>◉</i><b>Eyni fikir</b><small>Açmaq üçün toxun</small>
+        </button>
+        <button class="secret-door reveal" type="button" data-secret="Əgər bir bağın adını qoymaq çətindirsə, bəlkə də problem sözdə deyil. Bəlkə həmin bağ bütün adlardan böyükdür.">
+          <span class="door-index">QAPI ∞</span><i>∞</i><b>Adsızlıq</b><small>Açmaq üçün toxun</small>
+        </button>
+      </div>
+      <a class="hidden-route reveal" href="sual.html">
+        <span class="route-pulse"></span>
+        <small>GİZLİ MARŞRUT // ZM-04</small>
+        <b>Bu keçidin arxasında yalnız bir sual var.</b>
+        <i>Keçidi aç →</i>
+      </a>
+      <a class="hidden-route game-route reveal" href="oyun.html">
+        <span class="route-pulse"></span>
+        <small>YENİ OYUN // 5 DƏQİQƏ REJİMİ</small>
+        <b>“İndi bitirirəm” neçə saniyə davam edir?</b>
+        <i>Vaxt maşınını işə sal →</i>
+      </a>
+    </section>
+
+    <section class="notes-section section" id="sozler">
+      <div class="section-heading left reveal">
+        <p class="eyebrow">Deyilməyən sözlər</p>
+        <h2>Sənə demək istədiklərim.</h2>
+        <p>Kartlara toxun. Bəziləri açıq, bəziləri isə yalnız ikiniz üçün gizlidir.</p>
+      </div>
+
+      <div class="notes-grid">
+        <button class="note-card reveal" type="button" data-note="Sənin yanında özümü izah etmək məcburiyyətində qalmıram. Çünki sən bəzən mən deməmiş də anlayırsan.">
+          <span class="note-top"><i>01</i><b>Açmaq üçün toxun</b></span>
+          <h3>Sənin yanında...</h3>
+          <span class="note-seal">♡</span>
+        </button>
+        <button class="note-card blush reveal" type="button" data-note="Ən pis günümü bir cümlənlə yüngülləşdirə bilən nadir insanlardansan. Yaxşı ki, həyatımdasan.">
+          <span class="note-top"><i>02</i><b>Açmaq üçün toxun</b></span>
+          <h3>Yaxşı ki...</h3>
+          <span class="note-seal">♡</span>
+        </button>
+        <button class="note-card dark reveal" type="button" data-note="Hər şey dəyişsə belə, sənin üçün həmişə tanış bir yer, yorulanda dönə biləcəyin bir insan olmaq istəyirəm.">
+          <span class="note-top"><i>03</i><b>Açmaq üçün toxun</b></span>
+          <h3>Nə olursa olsun...</h3>
+          <span class="note-seal">♡</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="mischief-section section" id="decellikler">
+      <div class="mischief-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="section-heading reveal">
+        <p class="eyebrow">Balaca etiraz protokolu</p>
+        <h2>Mədinənin bir az<br>dəcəl tərəfləri.</h2>
+        <p>Əla insan olmağına mane olmayan, amma Ziyanın arada qaşını qaldırmasına səbəb olan xırda hallar.</p>
+      </div>
+
+      <div class="mischief-grid">
+        <article class="mischief-card reveal">
+          <span>01</span><i>GÖRÜLDÜ ✓✓</i>
+          <h3>Mesajı görüb gec yazmaq</h3>
+          <p>Bəzən mesajı görür, amma cavab bir az gec gəlir. Həmin vaxt başqa söhbətdə və ya qrupda itib-batmaq ehtimalı isə qəribə dərəcədə yüksəkdir.</p>
+          <small>Ziyanın gözləmə rejimi: aktiv</small>
+        </article>
+        <article class="mischief-card reveal">
+          <span>02</span><i>QULAQ ASMA SƏVİYYƏSİ: 73%</i>
+          <h3>Sözə həmişə qulaq asmamaq</h3>
+          <p>Bəzən deyilən sözü eşidir, düşünür və yenə öz bildiyini edir. Dəcəllik planı artıq qurulubsa, onu dayandırmaq ayrıca missiyadır.</p>
+          <small>“Bir dəfə də mən deyən olsun” bölməsi</small>
+        </article>
+        <article class="mischief-card reveal">
+          <span>03</span><i>5 DƏQİQƏ ≠ 5 DƏQİQƏ</i>
+          <h3>“İndi bitirəcəm” vaxtı</h3>
+          <p>Kimləsə yazışanda “indi bitirəcəm” deyir, amma həmin “indi” bəzən bir az uzun çəkir. Son mesajın ardınca müəmmalı şəkildə başqa son mesaj gəlir.</p>
+          <small>Vaxt anlayışı araşdırılır</small>
+        </article>
+        <article class="mischief-card verdict reveal">
+          <span>04</span><i>YEKUN HESABAT</i>
+          <h3>Bunlar olmasa...</h3>
+          <p>Çox əla ola bilərdi. Düzdür, indi də çox əladır, sadəcə bu üç balaca səhv düzəlsə, sistem tam ideal işləyərdi.</p>
+          <div class="mischief-meter"><b style="--score:96%"></b></div>
+          <small>Əlalıq göstəricisi: 96% · yenilənmə gözlənilir</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="finale section">
+      <div class="finale-rings" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="finale-content reveal">
+        <p class="eyebrow">Son deyil</p>
+        <h2>Bu hekayənin adı yoxdur.<br><em>Amma iki adı var.</em></h2>
+        <div class="final-names"><span>Ziya</span><i>&</i><span>Mədinə</span></div>
+        <p>Hələ əlavə edəcəyimiz çox söz, çox şəkil və yaşayacağımız çox xatirə var.</p>
+        <button class="primary-button replay-button" id="replayHearts" type="button">Bir az sevinc səp <span>♡</span></button>
+      </div>
+    </section>
+
+    <footer>
+      <a href="#home" class="brand"><span>Z</span><i>♡</i><span>M</span></a>
+      <p>Ən yaxın dostdan daha artıq, bir addan daha dərin.</p>
+      <small>Ziya və Mədinə üçün qorunan rəqəmsal dünya.</small>
+    </footer>
+  </main>
+
+  <div class="note-modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <article class="modal-paper">
+      <button class="modal-close" type="button" data-close-modal aria-label="Bağla">×</button>
+      <span class="modal-heart">♡</span>
+      <p class="eyebrow">Mədinəyə</p>
+      <h2 id="noteModalTitle">Balaca bir qeyd</h2>
+      <p id="noteModalText"></p>
+      <span class="modal-sign">— Ziya</span>
+    </article>
+  </div>
+
+  <div class="easter-message" id="easterMessage" role="status">Sən tapdın: bəzi ürəklər sadəcə bir dəfə yox, hər toxunuşda daha güclü döyünür. ♡</div>
+
+  <script src="script.js"></script>
+</body>
+</html>

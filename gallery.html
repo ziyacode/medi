@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#020405">
+  <meta name="description" content="Ziya və Mədinənin kodla qorunan şəkil arxivi.">
+  <title>ZM | Qalereya</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="gallery.css">
+  <link rel="stylesheet" href="gallery-images.css">
+</head>
+<body class="gallery-locked">
+  <div class="grain" aria-hidden="true"></div>
+  <div class="ocean-glow" aria-hidden="true"></div>
+
+  <section class="vault-lock" id="vaultLock" aria-labelledby="vaultTitle">
+    <a class="back-link" href="index.html">← əsas dünyaya qayıt</a>
+    <div class="vault-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="vault-panel">
+      <span class="system-label">ZM PHOTO ARCHIVE // LOCKED</span>
+      <div class="vault-symbol" aria-hidden="true"><span>Z</span><b>×</b><span>M</span></div>
+      <p class="eyebrow">İkinci sirr</p>
+      <h1 id="vaultTitle">Xatirələr otağı</h1>
+      <p>Şəkillər sözlərdən daha çox şey bildiyi üçün onların öz qapısı var.</p>
+
+      <form id="galleryPinForm" autocomplete="off">
+        <label class="sr-only" for="galleryPin">Qalereya kodu</label>
+        <input id="galleryPin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*">
+        <div class="vault-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="vault-keypad" aria-label="Qalereya rəqəm klaviaturası">
+          <button type="button" data-vault-key="1">1</button><button type="button" data-vault-key="2">2</button><button type="button" data-vault-key="3">3</button>
+          <button type="button" data-vault-key="4">4</button><button type="button" data-vault-key="5">5</button><button type="button" data-vault-key="6">6</button>
+          <button type="button" data-vault-key="7">7</button><button type="button" data-vault-key="8">8</button><button type="button" data-vault-key="9">9</button>
+          <button type="button" class="clear-key" data-vault-clear>sil</button><button type="button" data-vault-key="0">0</button><button type="submit" class="enter-key">↳</button>
+        </div>
+        <p class="vault-error" id="vaultError" role="alert"></p>
+      </form>
+    </div>
+    <span class="vault-foot">Kod rəqəmdir. Mənası isə yalnız bizə aiddir.</span>
+  </section>
+
+  <main class="gallery-world" id="galleryWorld" aria-hidden="true">
+    <header>
+      <a class="gallery-brand" href="index.html"><span>Z</span><i>♡</i><span>M</span></a>
+      <span class="archive-status"><i></i> arxiv açıqdır</span>
+      <a class="home-link" href="index.html">Əsas səhifə</a>
+    </header>
+
+    <section class="gallery-hero">
+      <div class="gallery-orbit" aria-hidden="true"><i></i><i></i></div>
+      <p class="eyebrow">Kod 2006 qəbul edildi</p>
+      <h1>Şəkillər danışanda<br><em>sözlər susur.</em></h1>
+      <p>Bu otaqda artıq səkkiz xatirə yaşayır. Hər şəklə toxunanda həmin kadr bütün ekranı tutur, sanki vaxt bir anlıq yenidən dayanır.</p>
+      <div class="archive-count"><b>08</b><span>qorunan<br>xatirə</span></div>
+    </section>
+
+    <section class="photo-archive" aria-label="Şəkil yerləri">
+      <button class="archive-card card-tall has-photo photo-01" type="button" data-photo-view data-photo-title="Ən sevdiyim şəkil" data-photo-code="ZM-001">
+        <span class="favorite-badge">Ziyanın seçimi ♡</span><span class="card-code">ZM-001</span><span class="card-copy"><b>Ən sevdiyim şəkil</b><small>Gecənin ən gözəl kadrı</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card card-wide has-photo photo-02" type="button" data-photo-view data-photo-title="Bir təbəssüm" data-photo-code="ZM-002">
+        <span class="card-code">ZM-002</span><span class="card-copy"><b>Bir təbəssüm</b><small>Sakit və doğma</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card has-photo photo-03" type="button" data-photo-view data-photo-title="Qırmızı gecə" data-photo-code="ZM-003">
+        <span class="card-code">ZM-003</span><span class="card-copy"><b>Qırmızı gecə</b><small>İşıqların içində</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card has-photo photo-04" type="button" data-photo-view data-photo-title="Mavi səma" data-photo-code="ZM-004">
+        <span class="card-code">ZM-004</span><span class="card-copy"><b>Mavi səma</b><small>Günəşli bir kadr</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card card-wide has-photo photo-05" type="button" data-photo-view data-photo-title="Parkda bir gün" data-photo-code="ZM-005">
+        <span class="card-code">ZM-005</span><span class="card-copy"><b>Parkda bir gün</b><small>Yaşılın içində</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card has-photo photo-06" type="button" data-photo-view data-photo-title="İsti işıq" data-photo-code="ZM-006">
+        <span class="card-code">ZM-006</span><span class="card-copy"><b>İsti işıq</b><small>Bir anlıq baxış</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card has-photo photo-07" type="button" data-photo-view data-photo-title="Sözsüz" data-photo-code="ZM-007">
+        <span class="card-code">ZM-007</span><span class="card-copy"><b>Sözsüz</b><small>Amma aydın</small></span><span class="view-photo">↗</span>
+      </button>
+      <button class="archive-card final-card has-photo photo-08" type="button" data-photo-view data-photo-title="Sakit gözəllik" data-photo-code="ZM-008">
+        <span class="card-code">ZM-008</span><span class="card-copy"><b>Sakit gözəllik</b><small>Arxiv davam edir</small></span><span class="view-photo">↗</span>
+      </button>
+    </section>
+
+    <p class="gallery-note">Bu səkkiz kadr artıq arxivin ilk fəslidir. Yeni şəkillər gəldikcə otaq böyüyəcək və hər birinin öz qeydi olacaq.</p>
+    <footer><span>Ziya</span><i>13.04 → ∞</i><span>Mədinə</span></footer>
+  </main>
+
+  <div class="photo-viewer" id="photoViewer" role="dialog" aria-modal="true" aria-labelledby="viewerTitle" hidden>
+    <button class="viewer-close" id="viewerClose" type="button" aria-label="Şəkli bağla">×</button>
+    <button class="viewer-nav viewer-prev" id="viewerPrev" type="button" aria-label="Əvvəlki şəkil">←</button>
+    <figure><div class="viewer-image" id="viewerImage"></div><figcaption><small id="viewerCode"></small><h2 id="viewerTitle"></h2><span id="viewerCount"></span></figcaption></figure>
+    <button class="viewer-nav viewer-next" id="viewerNext" type="button" aria-label="Növbəti şəkil">→</button>
+  </div>
+
+  <script src="gallery.js"></script>
+</body>
+</html>

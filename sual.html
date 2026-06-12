@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#020405">
+  <title>ZM | Bir sual</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="sual.css">
+</head>
+<body>
+  <div class="question-noise" aria-hidden="true"></div>
+  <div class="question-stars" id="questionStars" aria-hidden="true"></div>
+  <a class="question-back" href="index.html">← gizli qapılara qayıt</a>
+
+  <main class="question-stage" id="questionStage">
+    <span class="question-code">GİZLİ MARŞRUT // ZM-04</span>
+    <div class="question-heart" aria-hidden="true"><i></i><b>?</b></div>
+    <p class="eyebrow">Yalnız bir düzgün cavab var</p>
+    <h1>Ziyanı<br><em>sevirsən?</em></h1>
+    <p class="question-sub">Diqqətlə seç. Sistem tərəddüdü hiss edir.</p>
+
+    <div class="answer-zone" id="answerZone">
+      <button class="yes-button" id="yesButton" type="button">Hə <span>♡</span></button>
+      <button class="no-button" id="noButton" type="button">Yox</button>
+    </div>
+    <p class="try-message" id="tryMessage" role="status">Cavabını gözləyirəm...</p>
+  </main>
+
+  <section class="answer-reveal" id="answerReveal" aria-hidden="true">
+    <div class="scanner" id="scanner">
+      <div class="scan-ring"><i></i><span>Z</span><b>♡</b><span>M</span></div>
+      <p id="scanText">Cavab analiz edilir...</p>
+      <div class="scan-progress"><i id="scanBar"></i></div>
+    </div>
+
+    <div class="reveal-content" id="revealContent" hidden>
+      <span class="result-code">NƏTİCƏ // 100% DOĞRU</span>
+      <h2>Səhifə sənin “Hə” deyəcəyini<br><em>sən basmamışdan əvvəl bilirdi.</em></h2>
+      <p>Çünki bəzi cavablar düyməyə basanda yaranmır. Onlar insanın içində çoxdan mövcud olur, sadəcə bir an gəlib görünür.</p>
+      <div class="impossible-equation"><span>13.04.2024</span><i>+</i><span>28.05.2026</span><b>=</b><strong>∞</strong></div>
+      <button class="promise-heart" id="promiseHeart" type="button"><span>Z</span><i>♡</i><span>M</span><small>bir dəfə də toxun</small></button>
+      <p class="final-whisper" id="finalWhisper">Sirr hələ bitməyib.</p>
+      <a class="return-button" href="index.html">Bizim dünyaya qayıt</a>
+    </div>
+  </section>
+
+  <script src="sual.js"></script>
+</body>
+</html>
