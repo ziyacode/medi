@@ -12,7 +12,9 @@
 .track-progress{width:100%;height:18px;padding:8px 0;border:0;background:linear-gradient(transparent 8px,rgba(255,255,255,.09) 8px 10px,transparent 10px);cursor:pointer}
 .track-progress i{height:2px}
 #audioPlayer{display:none}
-.synced-lyrics{max-height:410px;margin-top:28px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(32,169,181,.42) transparent;overscroll-behavior:contain}
+.synced-lyrics{position:relative;height:410px;max-height:60svh;margin-top:28px;padding:min(160px,18svh) 8px;overflow-y:auto;scroll-behavior:smooth;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(32,169,181,.42) transparent;overscroll-behavior:contain}
+.synced-lyrics::-webkit-scrollbar{width:6px}
+.synced-lyrics::-webkit-scrollbar-thumb{border-radius:99px;background:color-mix(in srgb,var(--track-accent) 42%,transparent)}
 .synced-lyrics:empty{display:none}
 .lyric-line{width:100%;display:grid;grid-template-columns:48px 1fr;gap:13px;padding:13px 8px;text-align:left;border:0;background:none;color:#60777a;transition:color .25s,transform .25s,opacity .25s}
 .lyric-line time{padding-top:6px;color:#50676a;font-size:7px;letter-spacing:.08em}
@@ -38,7 +40,7 @@
 
 @media(max-width:700px){
   .hero-frequency span:nth-child(n+6),.final-equalizer i:nth-child(n+4){display:none}
-  .synced-lyrics{max-height:360px}
+  .synced-lyrics{height:360px;max-height:55svh;padding-block:min(130px,15svh)}
   .story-grid article:hover{transform:none}
 }
 
@@ -86,6 +88,6 @@
   .playlist-panel{border-radius:22px}
 }
 
-@media(prefers-reduced-motion:reduce){.track-slot.active>i,.audio-setup.needs-audio{animation:none}}
+@media(prefers-reduced-motion:reduce){.track-slot.active>i,.audio-setup.needs-audio{animation:none}.synced-lyrics{scroll-behavior:auto}}
 
 .audio-setup[hidden]{display:none!important}

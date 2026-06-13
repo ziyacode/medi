@@ -135,11 +135,15 @@ function finishGame() {
 }
 
 function startGame() {
+  clearInterval(spawnTimer);
+  clearInterval(clockTimer);
+  arena.querySelectorAll(".message-bubble,.score-pop").forEach((item) => item.remove());
   score = 0;
   combo = 0;
   timeLeft = roundSeconds;
   running = true;
   intro.hidden = true;
+  intro.setAttribute("aria-hidden", "true");
   result.hidden = true;
   result.setAttribute("aria-hidden", "true");
   board.hidden = false;
@@ -151,7 +155,7 @@ function startGame() {
   spawnBubble();
   spawnTimer = setInterval(spawnBubble, spawnDelay);
   clockTimer = setInterval(() => {
-    timeLeft -= 1;
+    timeLeft = Math.max(0, timeLeft - 1);
     updateHud();
     if (timeLeft <= 0) finishGame();
   }, 1000);

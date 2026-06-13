@@ -10,6 +10,7 @@ const pinDots = [...document.querySelectorAll(".pin-dots span")];
 const lockError = document.getElementById("lockError");
 const site = document.getElementById("site");
 let pin = "";
+let pinCheckTimer;
 
 function renderPin(clearError = true) {
   pinInput.value = pin;
@@ -21,7 +22,12 @@ function addDigit(digit) {
   if (pin.length >= 4) return;
   pin += digit;
   renderPin();
-  if (pin.length === 4) setTimeout(checkPin, 180);
+  schedulePinCheck();
+}
+
+function schedulePinCheck() {
+  clearTimeout(pinCheckTimer);
+  if (pin.length === 4) pinCheckTimer = setTimeout(checkPin, 180);
 }
 
 function unlockSite() {
@@ -35,6 +41,7 @@ function unlockSite() {
 }
 
 function checkPin() {
+  clearTimeout(pinCheckTimer);
   if (pin === ACCESS_CODE) {
     unlockSite();
     return;
@@ -57,10 +64,23 @@ document.querySelector("[data-clear]").addEventListener("click", () => {
 });
 pinForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  pin = pinInput.value.replace(/\D/g, "").slice(0, 4);
   checkPin();
+});
+pinInput.addEventListener("input", () => {
+  pin = pinInput.value.replace(/\D/g, "").slice(0, 4);
+  renderPin();
+  schedulePinCheck();
 });
 document.addEventListener("keydown", (event) => {
   if (!body.classList.contains("locked")) return;
+  if (event.target === pinInput) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      pinForm.requestSubmit();
+    }
+    return;
+  }
   if (/^[0-9]$/.test(event.key)) addDigit(event.key);
   if (event.key === "Backspace") {
     pin = pin.slice(0, -1);
@@ -94,18 +114,27 @@ const topbar = document.getElementById("topbar");
 const nav = document.getElementById("nav");
 const menuButton = document.getElementById("menuButton");
 window.addEventListener("scroll", () => topbar.classList.toggle("scrolled", window.scrollY > 40), { passive: true });
+
+function closeMenu() {
+  nav.classList.remove("open");
+  menuButton.classList.remove("open");
+  menuButton.setAttribute("aria-expanded", "false");
+  menuButton.setAttribute("aria-label", "Menyunu aç");
+  body.classList.remove("menu-open");
+}
+
 menuButton.addEventListener("click", () => {
   const open = nav.classList.toggle("open");
   menuButton.classList.toggle("open", open);
   menuButton.setAttribute("aria-expanded", String(open));
   menuButton.setAttribute("aria-label", open ? "Menyunu bağla" : "Menyunu aç");
+  body.classList.toggle("menu-open", open);
 });
-nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
-  nav.classList.remove("open");
-  menuButton.classList.remove("open");
-  menuButton.setAttribute("aria-expanded", "false");
-  menuButton.setAttribute("aria-label", "Menyunu aç");
-}));
+nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+document.addEventListener("click", (event) => {
+  if (!nav.classList.contains("open")) return;
+  if (!nav.contains(event.target) && !menuButton.contains(event.target)) closeMenu();
+});
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -186,7 +215,9 @@ mainHeart.addEventListener("click", (event) => {
 
 const noteModal = document.getElementById("noteModal");
 const noteModalText = document.getElementById("noteModalText");
+let lastModalTrigger;
 function openNote(text) {
+  lastModalTrigger = document.activeElement;
   noteModalText.textContent = text;
   noteModal.hidden = false;
   body.style.overflow = "hidden";
@@ -195,6 +226,7 @@ function openNote(text) {
 function closeNote() {
   noteModal.hidden = true;
   body.style.overflow = "";
+  if (lastModalTrigger instanceof HTMLElement) lastModalTrigger.focus();
 }
 document.querySelectorAll("[data-note]").forEach((note) => note.addEventListener("click", () => openNote(note.dataset.note)));
 document.getElementById("openFirstNote").addEventListener("click", () => openNote("Səninlə aramızdakı şeyin adını bilmirəm. Bəlkə də ad qoysaq, onu kiçiltmiş olarıq. Bildiyim budur: çox insanla tanış olursan, amma yalnız bir neçəsi düşüncələrinin səsini dəyişir. Sən mənim üçün elə birisən."));
@@ -211,6 +243,20 @@ document.querySelectorAll("[data-secret]").forEach((door) => {
 document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeNote));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !noteModal.hidden) closeNote();
+  else if (event.key === "Escape" && nav.classList.contains("open")) closeMenu();
+  if (event.key !== "Tab" || noteModal.hidden) return;
+  const focusable = [...noteModal.querySelectorAll("button, [href], input, [tabindex]:not([tabindex='-1'])")]
+    .filter((element) => !element.hidden && !element.disabled);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });
 
 document.querySelectorAll("[data-photo-slot]").forEach((slot) => {

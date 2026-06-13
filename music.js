@@ -21,9 +21,29 @@ let sourceCandidates = [];
 let sourceIndex = 0;
 let shouldAutoplay = false;
 let audioSourceReady = false;
+let favoriteTracks = new Set();
 const reduceMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
 ).matches;
+
+try {
+  const savedFavorites = JSON.parse(localStorage.getItem("zm-favorite-tracks") || "[]");
+  if (Array.isArray(savedFavorites)) favoriteTracks = new Set(savedFavorites);
+} catch {
+  favoriteTracks = new Set();
+}
+
+function trackId(track) {
+  return `${track.title || "track"}::${track.artist || "ZM"}`;
+}
+
+function updateFavoriteButton() {
+  if (!tracks.length) return;
+  const active = favoriteTracks.has(trackId(tracks[currentTrack]));
+  favoriteTrack.setAttribute("aria-pressed", String(active));
+  favoriteTrack.setAttribute("aria-label", active ? "Mahnını sevimlilərdən çıxar" : "Mahnını sevimli et");
+  favoriteTrack.textContent = active ? "♥" : "♡";
+}
 
 function formatTime(value) {
   if (!Number.isFinite(value)) return "0:00";
@@ -82,6 +102,7 @@ function renderTrackList() {
     const slot = document.createElement("button");
     slot.className = `track-slot${index === currentTrack ? " active" : ""}`;
     slot.type = "button";
+    if (index === currentTrack) slot.setAttribute("aria-current", "true");
     slot.dataset.slot = String(index + 1);
     slot.style.setProperty("--slot-accent", track.accent || "#20a9b5");
     slot.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><i></i><b></b><small></small><em>›</em>`;
@@ -106,6 +127,7 @@ function renderTrackList() {
 function renderLyrics(track) {
   const lyrics = Array.isArray(track.lyrics) ? track.lyrics : [];
   syncedLyrics.innerHTML = "";
+  syncedLyrics.scrollTop = 0;
   currentLyric = -1;
   const hasLyrics = lyrics.length > 0;
   // Show the empty explanatory message when there are no lyrics; hide the decorative placeholder.
@@ -177,9 +199,13 @@ function loadTrack(index, autoplay = false) {
     `TRACK ${String(currentTrack + 1).padStart(2, "0")}`;
   document
     .querySelectorAll(".track-slot")
-    .forEach((slot, slotIndex) =>
-      slot.classList.toggle("active", slotIndex === currentTrack),
-    );
+    .forEach((slot, slotIndex) => {
+      const active = slotIndex === currentTrack;
+      slot.classList.toggle("active", active);
+      if (active) slot.setAttribute("aria-current", "true");
+      else slot.removeAttribute("aria-current");
+    });
+  updateFavoriteButton();
   renderLyrics(track);
   playerStatus.textContent = autoplay
     ? "Mahnı hazırlanır..."
@@ -209,30 +235,31 @@ function updateLyrics() {
     else break;
   }
   if (active === currentLyric) return;
-  const previousLyric = currentLyric;
   currentLyric = active;
   const lines = [...syncedLyrics.querySelectorAll(".lyric-line")];
   lines.forEach((line, index) => {
-    line.classList.toggle("current", index === active);
+    const isCurrent = index === active;
+    line.classList.toggle("current", isCurrent);
     line.classList.toggle("past", index < active);
+    if (isCurrent) line.setAttribute("aria-current", "true");
+    else line.removeAttribute("aria-current");
   });
   const activeLine = lines[active];
   if (activeLine) {
-    const containerRect = syncedLyrics.getBoundingClientRect();
-    const lineRect = activeLine.getBoundingClientRect();
-    const lineCenter = lineRect.top - containerRect.top + lineRect.height / 2;
-    const containerCenter = syncedLyrics.clientHeight / 2;
-    const distance = lineCenter - containerCenter;
-
-    if (Math.abs(distance) > 12) {
-      const maxScroll = Math.max(
+    const maxScroll = Math.max(
+      0,
+      syncedLyrics.scrollHeight - syncedLyrics.clientHeight,
+    );
+    const target = Math.min(
+      maxScroll,
+      Math.max(
         0,
-        syncedLyrics.scrollHeight - syncedLyrics.clientHeight,
-      );
-      const target = Math.min(
-        maxScroll,
-        Math.max(0, syncedLyrics.scrollTop + distance),
-      );
+        activeLine.offsetTop -
+          (syncedLyrics.clientHeight - activeLine.offsetHeight) / 2,
+      ),
+    );
+
+    if (Math.abs(syncedLyrics.scrollTop - target) > 12) {
       syncedLyrics.scrollTo({
         top: Math.round(target),
         behavior: reduceMotion ? "auto" : "smooth",
@@ -264,6 +291,7 @@ audio.addEventListener("pause", () => setPlaying(false));
 audio.addEventListener("loadedmetadata", () => {
   audioSourceReady = true;
   document.getElementById("totalTime").textContent = formatTime(audio.duration);
+  trackSeek.setAttribute("aria-valuemax", String(Math.round(audio.duration || 0)));
 });
 audio.addEventListener("canplay", () => {
   audioSourceReady = true;
@@ -277,6 +305,8 @@ audio.addEventListener("timeupdate", () => {
     audio.currentTime,
   );
   trackProgress.style.width = `${audio.duration ? (audio.currentTime / audio.duration) * 100 : 0}%`;
+  trackSeek.setAttribute("aria-valuenow", String(Math.round(audio.currentTime)));
+  trackSeek.setAttribute("aria-valuetext", `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`);
   updateLyrics();
 });
 audio.addEventListener("ended", () => loadTrack(currentTrack + 1, true));
@@ -294,38 +324,75 @@ audio.addEventListener("error", () => {
 });
 
 trackSeek.addEventListener("click", (event) => {
-  if (!audio.duration) return;
+  if (!audio.duration || event.detail === 0) return;
   const rect = trackSeek.getBoundingClientRect();
   audio.currentTime =
     ((event.clientX - rect.left) / rect.width) * audio.duration;
 });
+trackSeek.setAttribute("role", "slider");
+trackSeek.setAttribute("aria-valuemin", "0");
+trackSeek.setAttribute("aria-valuemax", "0");
+trackSeek.setAttribute("aria-valuenow", "0");
+trackSeek.addEventListener("keydown", (event) => {
+  if (!audio.duration) return;
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  if (event.key === "Home") audio.currentTime = 0;
+  else if (event.key === "End") audio.currentTime = audio.duration;
+  else audio.currentTime = Math.min(
+    audio.duration,
+    Math.max(0, audio.currentTime + (event.key === "ArrowRight" ? 5 : -5)),
+  );
+});
 
 favoriteTrack.addEventListener("click", () => {
-  const active = favoriteTrack.getAttribute("aria-pressed") !== "true";
-  favoriteTrack.setAttribute("aria-pressed", String(active));
-  favoriteTrack.textContent = active ? "♥" : "♡";
+  if (!tracks.length) return;
+  const id = trackId(tracks[currentTrack]);
+  const active = !favoriteTracks.has(id);
+  if (active) favoriteTracks.add(id);
+  else favoriteTracks.delete(id);
+  try {
+    localStorage.setItem("zm-favorite-tracks", JSON.stringify([...favoriteTracks]));
+  } catch {
+    // Favorites still work for this visit when storage is unavailable.
+  }
+  updateFavoriteButton();
   playerStatus.textContent = active
     ? "Bu mahnı sevimlilərə əlavə edildi."
     : "Sevimli işarəsi götürüldü.";
 });
 
-document.querySelectorAll("[data-lyrics-tab]").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll("[data-lyrics-tab]").forEach((item) => {
-      const active = item === tab;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-selected", String(active));
-    });
-    document
-      .querySelectorAll("[data-lyrics-panel]")
-      .forEach((panel) =>
-        panel.classList.toggle(
-          "active",
-          panel.dataset.lyricsPanel === tab.dataset.lyricsTab,
-        ),
-      );
+const lyricsTabs = [...document.querySelectorAll("[data-lyrics-tab]")];
+
+function activateLyricsTab(tab, moveFocus = false) {
+  lyricsTabs.forEach((item) => {
+    const active = item === tab;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-selected", String(active));
+    item.tabIndex = active ? 0 : -1;
+  });
+  document.querySelectorAll("[data-lyrics-panel]").forEach((panel) => {
+    const active = panel.dataset.lyricsPanel === tab.dataset.lyricsTab;
+    panel.classList.toggle("active", active);
+    panel.setAttribute("aria-hidden", String(!active));
+  });
+  if (moveFocus) tab.focus();
+}
+
+lyricsTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => activateLyricsTab(tab));
+  tab.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    let nextIndex = index;
+    if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = lyricsTabs.length - 1;
+    else nextIndex = (index + (event.key === "ArrowRight" ? 1 : -1) + lyricsTabs.length) % lyricsTabs.length;
+    activateLyricsTab(lyricsTabs[nextIndex], true);
   });
 });
+
+if (lyricsTabs[0]) activateLyricsTab(lyricsTabs[0]);
 
 renderTrackList();
 if (tracks.length) loadTrack(0);

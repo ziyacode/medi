@@ -19,6 +19,7 @@ const retryMessages = [
   "404: 'Yox' cavabı tapılmadı."
 ];
 let escapeCount = 0;
+let answerAccepted = false;
 
 function moveNoButton() {
   const zone = answerZone.getBoundingClientRect();
@@ -32,12 +33,18 @@ function moveNoButton() {
   escapeCount += 1;
 }
 
-noButton.addEventListener("pointerenter", moveNoButton);
+noButton.addEventListener("pointerenter", (event) => {
+  if (event.pointerType === "mouse") moveNoButton();
+});
 noButton.addEventListener("click", (event) => { event.preventDefault(); moveNoButton(); });
-noButton.addEventListener("focus", () => { if (escapeCount > 0) moveNoButton(); });
 
 yesButton.addEventListener("click", () => {
+  if (answerAccepted) return;
+  answerAccepted = true;
+  yesButton.disabled = true;
+  noButton.disabled = true;
   stage.classList.add("leave");
+  stage.setAttribute("aria-hidden", "true");
   answerReveal.classList.add("open");
   answerReveal.setAttribute("aria-hidden", "false");
   setTimeout(() => { scanBar.style.width = "100%"; }, 100);
@@ -47,7 +54,14 @@ yesButton.addEventListener("click", () => {
     scanner.hidden = true;
     revealContent.hidden = false;
     createWordBurst(["Ziya", "Mədinə", "13.04", "28.05", "ən yaxın", "sonsuz", "♡"]);
+    document.getElementById("promiseHeart").focus();
   }, 3200);
+});
+
+window.addEventListener("resize", () => {
+  noButton.style.left = "";
+  noButton.style.top = "";
+  noButton.style.transform = "";
 });
 
 function createWordBurst(words) {
