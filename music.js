@@ -13,21 +13,66 @@ const trackProgress = document.getElementById("trackProgress");
 const syncedLyrics = document.getElementById("syncedLyrics");
 const lyricsPlaceholder = document.getElementById("lyricsPlaceholder");
 const lyricsEmpty = document.getElementById("lyricsEmpty");
+const trackMood = document.getElementById("trackMood");
+const trackPosition = document.getElementById("trackPosition");
 let currentTrack = 0;
 let currentLyric = -1;
+let sourceCandidates = [];
+let sourceIndex = 0;
+let shouldAutoplay = false;
+let audioSourceReady = false;
+const reduceMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
 
 function formatTime(value) {
   if (!Number.isFinite(value)) return "0:00";
   const minutes = Math.floor(value / 60);
-  const seconds = Math.floor(value % 60).toString().padStart(2, "0");
+  const seconds = Math.floor(value % 60)
+    .toString()
+    .padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+function desktopTrackSource(track) {
+  if (window.location.protocol !== "file:" || !track.fileName) return null;
+  try {
+    return new URL(
+      `../../Desktop/${encodeURIComponent(track.fileName)}`,
+      window.location.href,
+    ).href;
+  } catch {
+    return null;
+  }
+}
+
+function getTrackSources(track) {
+  const localPageSources =
+    window.location.protocol === "file:"
+      ? [desktopTrackSource(track), track.src, track.portableSrc]
+      : [track.portableSrc];
+  return [...new Set([track.attachedSrc, ...localPageSources].filter(Boolean))];
 }
 
 function setPlaying(playing) {
   vinyl.classList.toggle("playing", playing);
   tonearm.classList.toggle("playing", playing);
   playButton.textContent = playing ? "Ⅱ" : "▶";
-  playButton.setAttribute("aria-label", playing ? "Mahnını dayandır" : "Mahnını səsləndir");
+  playButton.setAttribute(
+    "aria-label",
+    playing ? "Mahnını dayandır" : "Mahnını səsləndir",
+  );
+}
+
+async function startPlayback() {
+  try {
+    await audio.play();
+  } catch (error) {
+    console.warn("Audio playback failed", error?.name, error?.message);
+    playerStatus.textContent = audio.currentSrc
+      ? "Mahnı hazırlanır. Oynat düyməsinə bir dəfə də toxun."
+      : "Bu mahnının audio faylı tapılmadı.";
+  }
 }
 
 function renderTrackList() {
@@ -38,23 +83,37 @@ function renderTrackList() {
     slot.className = `track-slot${index === currentTrack ? " active" : ""}`;
     slot.type = "button";
     slot.dataset.slot = String(index + 1);
+    slot.style.setProperty("--slot-accent", track.accent || "#20a9b5");
     slot.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><i></i><b></b><small></small><em>›</em>`;
     slot.querySelector("b").textContent = track.title;
-    slot.querySelector("small").textContent = `${track.artist || "Naməlum ifaçı"} · ${track.duration || "--:--"}`;
+    slot.querySelector("small").textContent =
+      `${track.artist || "Naməlum ifaçı"} · ${track.duration || "--:--"}`;
     slot.addEventListener("click", () => loadTrack(index, true));
     trackList.appendChild(slot);
   });
-  document.querySelector(".panel-title>span").textContent = `${String(tracks.length).padStart(2, "0")} TRACKS`;
-  document.querySelector(".music-stats b").textContent = String(tracks.length).padStart(2, "0");
+  document.querySelector(".panel-title>span").textContent =
+    `${String(tracks.length).padStart(2, "0")} TRACKS`;
+  const statValues = document.querySelectorAll(".music-stats b");
+  const totalDuration = tracks.reduce(
+    (total, track) => total + (track.durationSeconds || 0),
+    0,
+  );
+  if (statValues[0])
+    statValues[0].textContent = String(tracks.length).padStart(2, "0");
+  if (statValues[1]) statValues[1].textContent = formatTime(totalDuration);
 }
 
 function renderLyrics(track) {
   const lyrics = Array.isArray(track.lyrics) ? track.lyrics : [];
   syncedLyrics.innerHTML = "";
   currentLyric = -1;
-  lyricsPlaceholder.hidden = lyrics.length > 0;
-  lyricsEmpty.hidden = lyrics.length > 0;
-  document.getElementById("lyricsIndex").textContent = lyrics.length ? `LYRICS // ${String(lyrics.length).padStart(2, "0")} LINES` : "LYRICS // EMPTY";
+  const hasLyrics = lyrics.length > 0;
+  // Show the empty explanatory message when there are no lyrics; hide the decorative placeholder.
+  lyricsPlaceholder.hidden = true;
+  lyricsEmpty.hidden = hasLyrics;
+  document.getElementById("lyricsIndex").textContent = hasLyrics
+    ? `LYRICS // ${String(lyrics.length).padStart(2, "0")} LINES`
+    : "LYRICS // EMPTY";
 
   lyrics.forEach((line) => {
     const row = document.createElement("button");
@@ -69,27 +128,76 @@ function renderLyrics(track) {
     syncedLyrics.appendChild(row);
   });
 
-  document.getElementById("favoriteLineTime").textContent = `FAVORITE LINE // ${formatTime(track.favoriteAt || 0)}`;
-  document.getElementById("favoriteLineText").textContent = track.favoriteLine ? `“${track.favoriteLine}”` : "“Bizi ən yaxşı izah edən misra hələ seçilməyib.”";
-  document.getElementById("favoriteLineNote").textContent = track.favoriteNote || "Sevdiyiniz cümləni ayrıca vurğulayacağıq.";
-  document.getElementById("meaningTitle").textContent = track.meaningTitle || "Bu mahnının sizə nəyi xatırlatdığı burada yaşayacaq.";
-  document.getElementById("meaningText").textContent = track.meaning || "Tarix, yer, həmin günün əhvalı və mahnının niyə sizə aid olduğu üçün geniş qeyd sahəsi hazırdır.";
+  document.getElementById("favoriteLineTime").textContent =
+    `FAVORITE LINE // ${formatTime(track.favoriteAt || 0)}`;
+  document.getElementById("favoriteLineText").textContent = track.favoriteLine
+    ? `“${track.favoriteLine}”`
+    : "“Bizi ən yaxşı izah edən misra hələ seçilməyib.”";
+  document.getElementById("favoriteLineNote").textContent =
+    track.favoriteNote || "Sevdiyiniz cümləni ayrıca vurğulayacağıq.";
+  document.getElementById("meaningTitle").textContent =
+    track.meaningTitle ||
+    "Bu mahnının sizə nəyi xatırlatdığı burada yaşayacaq.";
+  document.getElementById("meaningText").textContent =
+    track.meaning ||
+    "Tarix, yer, həmin günün əhvalı və mahnının niyə sizə aid olduğu üçün geniş qeyd sahəsi hazırdır.";
 }
 
 function loadTrack(index, autoplay = false) {
   if (!tracks.length) return;
   currentTrack = (index + tracks.length) % tracks.length;
   const track = tracks[currentTrack];
-  audio.src = track.src;
-  audio.load();
-  document.getElementById("trackNumber").textContent = `MAHNI // ${String(currentTrack + 1).padStart(2, "0")}`;
+  sourceCandidates = getTrackSources(track);
+  sourceIndex = 0;
+  shouldAutoplay = autoplay;
+  audioSourceReady = false;
+  if (sourceCandidates.length) {
+    audio.src = sourceCandidates[sourceIndex];
+    audio.load();
+  } else {
+    audio.removeAttribute("src");
+    audio.load();
+  }
+  document.getElementById("trackNumber").textContent =
+    `MAHNI // ${String(currentTrack + 1).padStart(2, "0")}`;
   document.getElementById("trackTitle").textContent = track.title;
-  document.getElementById("trackArtist").textContent = track.artist || "Naməlum ifaçı";
-  document.querySelector(".vinyl-label small").textContent = `TRACK ${String(currentTrack + 1).padStart(2, "0")}`;
-  document.querySelectorAll(".track-slot").forEach((slot, slotIndex) => slot.classList.toggle("active", slotIndex === currentTrack));
+  document.getElementById("trackArtist").textContent =
+    track.artist || "Naməlum ifaçı";
+  trackMood.textContent = track.mood || "Bizim mahnımız";
+  trackPosition.textContent = `${String(currentTrack + 1).padStart(2, "0")} / ${String(tracks.length).padStart(2, "0")}`;
+  document.documentElement.style.setProperty(
+    "--track-accent",
+    track.accent || "#20a9b5",
+  );
+  document.documentElement.style.setProperty(
+    "--track-accent-soft",
+    track.accentSoft || "#6a2b20",
+  );
+  document.querySelector(".vinyl-label small").textContent =
+    `TRACK ${String(currentTrack + 1).padStart(2, "0")}`;
+  document
+    .querySelectorAll(".track-slot")
+    .forEach((slot, slotIndex) =>
+      slot.classList.toggle("active", slotIndex === currentTrack),
+    );
   renderLyrics(track);
-  playerStatus.textContent = autoplay ? "Mahnı hazırlanır..." : "Mahnı seçildi.";
-  if (autoplay) audio.play().catch(() => { playerStatus.textContent = "Səsləndirmək üçün oynat düyməsinə toxun."; });
+  playerStatus.textContent = autoplay
+    ? "Mahnı hazırlanır..."
+    : "Mahnı seçildi.";
+  if (autoplay && sourceCandidates.length) {
+    audio.play().catch(() => {
+      playerStatus.textContent =
+        "Səs hazır deyil. Oynat düyməsinə yenidən toxun.";
+    });
+  }
+
+  if ("mediaSession" in navigator && "MediaMetadata" in window) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title,
+      artist: track.artist || "ZM",
+      album: "Bizim mahnılarımız",
+    });
+  }
 }
 
 function updateLyrics() {
@@ -101,48 +209,104 @@ function updateLyrics() {
     else break;
   }
   if (active === currentLyric) return;
+  const previousLyric = currentLyric;
   currentLyric = active;
   const lines = [...syncedLyrics.querySelectorAll(".lyric-line")];
   lines.forEach((line, index) => {
     line.classList.toggle("current", index === active);
     line.classList.toggle("past", index < active);
   });
-  lines[active]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  const activeLine = lines[active];
+  if (activeLine) {
+    const containerRect = syncedLyrics.getBoundingClientRect();
+    const lineRect = activeLine.getBoundingClientRect();
+    const lineCenter = lineRect.top - containerRect.top + lineRect.height / 2;
+    const containerCenter = syncedLyrics.clientHeight / 2;
+    const distance = lineCenter - containerCenter;
+
+    if (Math.abs(distance) > 12) {
+      const maxScroll = Math.max(
+        0,
+        syncedLyrics.scrollHeight - syncedLyrics.clientHeight,
+      );
+      const target = Math.min(
+        maxScroll,
+        Math.max(0, syncedLyrics.scrollTop + distance),
+      );
+      syncedLyrics.scrollTo({
+        top: Math.round(target),
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    }
+  }
 }
 
 playButton.addEventListener("click", () => {
   if (!tracks.length) {
-    playerStatus.textContent = "Əvvəlcə mahnı fayllarını əlavə etmək lazımdır.";
+    playerStatus.textContent = "Playlist boşdur.";
     return;
   }
-  if (audio.paused) audio.play().catch(() => { playerStatus.textContent = "Audio faylı açıla bilmədi."; });
+  if (audio.paused) startPlayback();
   else audio.pause();
 });
 
-previousButton.addEventListener("click", () => loadTrack(currentTrack - 1, true));
+previousButton.addEventListener("click", () =>
+  loadTrack(currentTrack - 1, true),
+);
 nextButton.addEventListener("click", () => loadTrack(currentTrack + 1, true));
-audio.addEventListener("play", () => { setPlaying(true); playerStatus.textContent = "İndi səslənir."; });
+audio.addEventListener("play", () => {
+  shouldAutoplay = false;
+  audioSourceReady = true;
+  setPlaying(true);
+  playerStatus.textContent = "İndi səslənir.";
+});
 audio.addEventListener("pause", () => setPlaying(false));
-audio.addEventListener("loadedmetadata", () => { document.getElementById("totalTime").textContent = formatTime(audio.duration); });
+audio.addEventListener("loadedmetadata", () => {
+  audioSourceReady = true;
+  document.getElementById("totalTime").textContent = formatTime(audio.duration);
+});
+audio.addEventListener("canplay", () => {
+  audioSourceReady = true;
+  if (!shouldAutoplay) return;
+  audio.play().catch(() => {
+    playerStatus.textContent = "Oynat düyməsinə toxun.";
+  });
+});
 audio.addEventListener("timeupdate", () => {
-  document.getElementById("currentTime").textContent = formatTime(audio.currentTime);
+  document.getElementById("currentTime").textContent = formatTime(
+    audio.currentTime,
+  );
   trackProgress.style.width = `${audio.duration ? (audio.currentTime / audio.duration) * 100 : 0}%`;
   updateLyrics();
 });
 audio.addEventListener("ended", () => loadTrack(currentTrack + 1, true));
-audio.addEventListener("error", () => { playerStatus.textContent = "Bu audio faylı tapılmadı və ya açıla bilmədi."; setPlaying(false); });
+audio.addEventListener("error", () => {
+  if (sourceIndex < sourceCandidates.length - 1) {
+    sourceIndex += 1;
+    audio.src = sourceCandidates[sourceIndex];
+    audio.load();
+    if (shouldAutoplay) audio.play().catch(() => {});
+    return;
+  }
+  audioSourceReady = false;
+  playerStatus.textContent = "Bu mahnının audio faylı tapılmadı.";
+  setPlaying(false);
+});
 
 trackSeek.addEventListener("click", (event) => {
   if (!audio.duration) return;
   const rect = trackSeek.getBoundingClientRect();
-  audio.currentTime = ((event.clientX - rect.left) / rect.width) * audio.duration;
+  audio.currentTime =
+    ((event.clientX - rect.left) / rect.width) * audio.duration;
 });
 
 favoriteTrack.addEventListener("click", () => {
   const active = favoriteTrack.getAttribute("aria-pressed") !== "true";
   favoriteTrack.setAttribute("aria-pressed", String(active));
   favoriteTrack.textContent = active ? "♥" : "♡";
-  playerStatus.textContent = active ? "Bu mahnı sevimlilərə əlavə edildi." : "Sevimli işarəsi götürüldü.";
+  playerStatus.textContent = active
+    ? "Bu mahnı sevimlilərə əlavə edildi."
+    : "Sevimli işarəsi götürüldü.";
 });
 
 document.querySelectorAll("[data-lyrics-tab]").forEach((tab) => {
@@ -152,7 +316,14 @@ document.querySelectorAll("[data-lyrics-tab]").forEach((tab) => {
       item.classList.toggle("active", active);
       item.setAttribute("aria-selected", String(active));
     });
-    document.querySelectorAll("[data-lyrics-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.lyricsPanel === tab.dataset.lyricsTab));
+    document
+      .querySelectorAll("[data-lyrics-panel]")
+      .forEach((panel) =>
+        panel.classList.toggle(
+          "active",
+          panel.dataset.lyricsPanel === tab.dataset.lyricsTab,
+        ),
+      );
   });
 });
 
