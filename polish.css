@@ -12,6 +12,8 @@
 
 html {
   font-size: 16px;
+  background: #02080a;
+  overscroll-behavior-y: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -19,6 +21,28 @@ html {
 body {
   font-family: var(--zm-sans);
   line-height: 1.6;
+}
+
+/* Cleaner color rendering across every page */
+.noise,
+.grain,
+.question-noise,
+.music-grain {
+  display: none !important;
+}
+
+.cursor-glow { filter: none !important; opacity: .2; }
+.topbar,
+.gallery-world header { backdrop-filter: blur(6px) saturate(120%) !important; }
+.memory-card,
+.orbit-note,
+.modal-backdrop,
+.photo-viewer,
+.view-photo,
+.favorite-badge { backdrop-filter: blur(4px) saturate(115%) !important; }
+
+body:not(.music-page) {
+  background-color: #02080a;
 }
 
 button,
@@ -410,6 +434,37 @@ input:focus-visible,
 .result-ring small { font-size: 10px !important; }
 
 /* Question */
+.question-noise { display: none; }
+
+body:has(.question-stage) {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(26, 180, 192, .24), transparent 32%),
+    radial-gradient(circle at 82% 76%, rgba(208, 30, 53, .22), transparent 34%),
+    linear-gradient(135deg, #031216, #061f24 48%, #19070c) !important;
+}
+
+.question-stars { opacity: .9; }
+.question-stars i { width: 3px; height: 3px; }
+.question-stage h1 em { color: #43d0da; text-shadow: 0 0 22px rgba(67, 208, 218, .22); }
+.question-heart { background: rgba(4, 19, 23, .66); }
+.answer-reveal {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(23, 174, 187, .38), transparent 38%),
+    radial-gradient(circle at 16% 82%, rgba(208, 30, 53, .24), transparent 30%),
+    linear-gradient(135deg, #031115, #071d21 55%, #17070b) !important;
+}
+
+.promise-heart::before {
+  color: #c51d36;
+  filter: drop-shadow(0 0 16px rgba(208, 30, 53, .24));
+}
+
+.return-button {
+  border-color: rgba(72, 218, 229, .42);
+  background: rgba(8, 46, 52, .48);
+  color: #d8f6f7;
+}
+
 .question-stage { padding-inline: 22px; }
 .question-sub { font-size: clamp(15px, 1.3vw, 18px) !important; }
 .answer-zone button { min-width: 152px; min-height: 58px; font-size: 17px !important; }
@@ -474,6 +529,115 @@ input:focus-visible,
   .music-stats { gap: 20px; }
   .lyrics-screen { padding-inline: 20px; }
   .answer-zone button { min-width: 120px; }
+}
+
+/* Final color pass: crisp surfaces, stronger separation, minimal haze */
+.lock-card,
+.memory-card,
+.orbit-note,
+.topbar,
+.gallery-world header,
+.music-header,
+.photo-viewer,
+.view-photo,
+.favorite-badge {
+  backdrop-filter: none !important;
+}
+
+.lock-card {
+  background: linear-gradient(145deg, rgba(19, 12, 23, .98), rgba(5, 19, 23, .98));
+}
+
+body:has(.site) {
+  background: linear-gradient(135deg, #08050a, #07191c 52%, #17080d);
+}
+
+body:has(.gallery-world) {
+  background: linear-gradient(135deg, #020b0e, #071a1e 56%, #16070b);
+}
+
+body:has(.gallery-world) .ocean-glow {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(31, 185, 198, .22), transparent 32%),
+    radial-gradient(circle at 12% 82%, rgba(207, 31, 54, .2), transparent 34%);
+}
+
+body:has(.game-shell) {
+  background:
+    radial-gradient(circle at 24% 22%, rgba(32, 169, 181, .24), transparent 34%),
+    radial-gradient(circle at 78% 78%, rgba(207, 31, 54, .2), transparent 34%),
+    linear-gradient(135deg, #020b0e, #07191d 58%, #17070b) !important;
+}
+
+.game-grid { opacity: .12 !important; }
+.question-stars { opacity: .72; }
+.photo-viewer { background: rgba(1, 7, 9, .98); }
+
+/* Scroll performance: keep the design, stop expensive repaint work in motion. */
+.perf-offscreen *,
+.is-scrolling .hero::after,
+.is-scrolling .hero-aurora,
+.is-scrolling .hero-stars,
+.is-scrolling .mystery-particle,
+.is-scrolling .float-heart,
+.is-scrolling .music-wave-lines i,
+.is-scrolling .ambient-waves i,
+.is-scrolling .hero-frequency span,
+.is-scrolling .final-equalizer i,
+.is-scrolling .gallery-orbit,
+.is-scrolling .card-light,
+.is-scrolling .game-grid,
+.is-scrolling .game-orbits i,
+.is-scrolling .question-stars i,
+.is-scrolling .question-heart,
+.is-scrolling .question-heart::before {
+  animation-play-state: paused !important;
+}
+
+.is-scrolling::before,
+.is-scrolling::after { animation-play-state: paused !important; }
+
+.is-scrolling .cursor-glow { opacity: 0 !important; }
+
+.section,
+.player-section,
+.lyrics-section,
+.song-story,
+.music-finale,
+.gallery-hero,
+.photo-archive {
+  contain: paint;
+}
+
+.music-page::before {
+  inset: -8%;
+  will-change: transform;
+}
+
+.music-page::after { animation: none; opacity: .18; }
+.music-page .ambient-waves i:nth-child(3) { display: none; }
+.particle-field { display: none; }
+
+@media (max-width: 700px), (pointer: coarse) {
+  .cursor-glow,
+  .particle-field,
+  .ambient-waves,
+  .game-orbits { display: none !important; }
+  .music-page::before { animation: none; inset: 0; }
+  .hero::after,
+  .hero-stars,
+  .gallery-orbit,
+  .card-light { animation: none !important; }
+  .photo-archive,
+  .archive-card {
+    content-visibility: visible !important;
+    contain-intrinsic-size: none !important;
+  }
+}
+
+@supports not selector(body:has(*)) {
+  body { background: linear-gradient(135deg, #020b0e, #07191d 58%, #17070b); }
 }
 
 @media (prefers-reduced-motion: reduce) {

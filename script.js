@@ -1,5 +1,11 @@
 const ACCESS_CODE = "2610";
 const compactDevice = window.matchMedia("(max-width: 700px), (pointer: coarse)").matches;
+const forceLock = new URLSearchParams(window.location.search).get("lock") === "1";
+
+if (forceLock) {
+  sessionStorage.removeItem("zm-unlocked");
+  history.replaceState(null, "", `${window.location.pathname}${window.location.hash}`);
+}
 
 const body = document.body;
 const lockScreen = document.getElementById("lockScreen");
@@ -89,7 +95,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter") checkPin();
 });
 
-if (sessionStorage.getItem("zm-unlocked") === "yes") unlockSite();
+if (!forceLock && sessionStorage.getItem("zm-unlocked") === "yes") unlockSite();
 
 function daysSince(dateString) {
   const [startYear, startMonth, startDay] = dateString.split("-").map(Number);
@@ -113,7 +119,14 @@ if (closeDays) closeDays.textContent = daysSince("2026-05-28");
 const topbar = document.getElementById("topbar");
 const nav = document.getElementById("nav");
 const menuButton = document.getElementById("menuButton");
-window.addEventListener("scroll", () => topbar.classList.toggle("scrolled", window.scrollY > 40), { passive: true });
+let topbarFrame = 0;
+window.addEventListener("scroll", () => {
+  if (topbarFrame) return;
+  topbarFrame = requestAnimationFrame(() => {
+    topbar.classList.toggle("scrolled", window.scrollY > 40);
+    topbarFrame = 0;
+  });
+}, { passive: true });
 
 function closeMenu() {
   nav.classList.remove("open");
@@ -280,24 +293,32 @@ document.querySelectorAll("[data-photo-slot]").forEach((slot) => {
 
 const cursorGlow = document.querySelector(".cursor-glow");
 if (window.matchMedia("(pointer: fine)").matches) {
+  const heroArt = document.querySelector(".hero-art");
+  let pointerFrame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
   document.addEventListener("mousemove", (event) => {
-    cursorGlow.style.left = `${event.clientX}px`;
-    cursorGlow.style.top = `${event.clientY}px`;
-    cursorGlow.style.opacity = "1";
-
-    const heroArt = document.querySelector(".hero-art");
-    if (heroArt && window.scrollY < window.innerHeight) {
-      const x = (event.clientX / window.innerWidth - 0.5) * 12;
-      const y = (event.clientY / window.innerHeight - 0.5) * 12;
-      heroArt.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    }
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (pointerFrame) return;
+    pointerFrame = requestAnimationFrame(() => {
+      cursorGlow.style.left = `${pointerX}px`;
+      cursorGlow.style.top = `${pointerY}px`;
+      cursorGlow.style.opacity = "1";
+      if (heroArt && window.scrollY < window.innerHeight) {
+        const x = (pointerX / window.innerWidth - 0.5) * 12;
+        const y = (pointerY / window.innerHeight - 0.5) * 12;
+        heroArt.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }
+      pointerFrame = 0;
+    });
   });
   document.addEventListener("mouseleave", () => { cursorGlow.style.opacity = "0"; });
 }
 
 const particleField = document.getElementById("particleField");
 if (particleField) {
-  const particleCount = compactDevice ? 16 : 42;
+  const particleCount = compactDevice ? 5 : 12;
   for (let index = 0; index < particleCount; index += 1) {
     const particle = document.createElement("i");
     particle.className = "mystery-particle";
